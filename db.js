@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
 
-mongoose.connect('mongodb+srv://DB1-practice:aA4LCFbAHW4jcQgm@cluster0.gpxo7.mongodb.net/course-selling-app')
+mongoose.connect('mongodb+srv://DB1-practice:R5Y71dLhNLahIA3r@cluster0.gpxo7.mongodb.net/course-selling-app')
 
 const adminSchema = new Schema({
     username: String,
@@ -30,9 +30,9 @@ const purchasesSchema = new Schema({
     courseId: ObjectId
 });
 
-const adminModel = mongoose.model('admin',adminSchema);
-const userModel = mongoose.model('user',userSchema);
-const courseModel = mongoose.model('course',courseSchema);
+const adminModel = mongoose.model('admins',adminSchema);
+const userModel = mongoose.model('users',userSchema);
+const courseModel = mongoose.model('courses',courseSchema);
 const purchasesModel = mongoose.model('purchases',purchasesSchema);
 
 module.exports = {
