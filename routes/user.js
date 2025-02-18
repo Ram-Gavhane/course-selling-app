@@ -23,7 +23,7 @@ userRouter.post("/signup", async function(req, res){
     const user = await userModel.findOne({
         email: email
     })
-    console.log(user)
+
     if(user){
         res.json({
             message: "User exists with this email, Try with another email"
@@ -51,17 +51,24 @@ userRouter.post("/login", async function(req, res){
     const user = await userModel.findOne({
         username
     })
-    const passCheck = await bcrypt.compare(password, user.password);
     
-    if(user && passCheck){
-        const token = jwt.sign({
-            username
-        },JWT_SECRET_USER);
-
-        res.json({
-            message: "You are logged in successfully",
-            token: token
-        })
+    
+    if(user){
+        const passCheck = await bcrypt.compare(password, user.password);
+        if(passCheck){
+            const token = jwt.sign({
+                id: user._id
+            },JWT_SECRET_USER);
+            res.json({
+                message: "You are logged in successfully",
+                token: token
+            })
+        }else{
+            res.json({
+                message: "Your password is incorrect",
+                
+            })
+        }
     }else{
         res.status(403).json({
             message: "Invalid Credentials"

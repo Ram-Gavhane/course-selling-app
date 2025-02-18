@@ -46,20 +46,27 @@ adminRouter.post("/login", async function(req, res){
     const username = req.body.username;
     const password = req.body.password;
 
-    const user = await adminModel.findOne({
+    const admin = await adminModel.findOne({
         username
     })
-    const passCheck = await bcrypt.compare(password, user.password);
+    const passCheck = await bcrypt.compare(password, admin.password);
 
-    if(user && passCheck){
-        const token = jwt.sign({
-            username
-        },JWT_SECRET_ADMIN);
+    if(admin){
+        if(passCheck){
+            const token = jwt.sign({
+                id: admin._id
+            },JWT_SECRET_ADMIN);
 
-        res.json({
-            message: "You are logged in successfully",
-            token: token
-        })
+            res.json({
+                message: "You are logged in successfully",
+                token: token
+            })
+        }else{
+            res.json({
+                message: "Your password is incorrect",
+                token: token
+            })
+        }
     }else{
         res.status(403).json({
             message: "Invalid Credentials"

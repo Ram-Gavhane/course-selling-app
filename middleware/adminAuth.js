@@ -5,12 +5,13 @@ const {JWT_SECRET_ADMIN} = require("../config")
 async function adminAuth(req, res, next){
     const token = req.headers.token;
     const decodedData = jwt.verify(token, JWT_SECRET_ADMIN);
-    const username = decodedData.username;
-    const user = await adminModel.findOne({
-        username
+    const id = decodedData._id;
+    const admin = await adminModel.findOne({
+        id
     })
     
-    if(user){
+    if(admin){
+        req.id = id;
         next();
     }else{
         res.status(403).json({
