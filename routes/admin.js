@@ -1,20 +1,76 @@
 const express = require("express");
 const Router = express.Router;
 
+const jwt = require("jsonwebtoken");
+const {JWT_SECRET_ADMIN} = require("../config")
+
+const {adminAuth} = require("../middleware/adminAuth")
 const adminRouter = Router();
 
-const { adminModel } = require("../db");
+const bcrypt = require("bcrypt");
 
-adminRouter.post("/signup", function(req, res){
-    
+const { adminModel,courseModel } = require("../db");
+
+adminRouter.post("/signup", async function(req, res){
+    const username = req.body.username;
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName;
+    const email = req.body.email;
+    const password = req.body.password;
+
+    const user = await adminModel.findOne({
+        email: email
+    })
+    console.log(user)
+    if(user){
+        res.json({
+            message: "Admin exists with this email, Try with another email"
+        });
+    }else{
+        const hashedPass = await bcrypt.hash(password, 5);
+        await adminModel.create({
+            username,
+            firstName,
+            lastName,
+            email,
+            password: hashedPass
+        })
+
+        res.json({
+            message: "Account created successfully"
+        });
+    }
 });
 
-adminRouter.post("/login", function(req, res){
+adminRouter.post("/login", async function(req, res){
+    const username = req.body.username;
+    const password = req.body.password;
 
+    const user = await adminModel.findOne({
+        username
+    })
+    const passCheck = await bcrypt.compare(password, user.password);
+
+    if(user && passCheck){
+        const token = jwt.sign({
+            username
+        },JWT_SECRET_ADMIN);
+
+        res.json({
+            message: "You are logged in successfully",
+            token: token
+        })
+    }else{
+        res.status(403).json({
+            message: "Invalid Credentials"
+        });
+    }
 });
 
-adminRouter.post("/createCourse", function(req, res){
-
+adminRouter.post("/createCourse", adminAuth, function(req, res){
+    res.json({
+        message: "Reached"
+    })
 });
 
 adminRouter.post("/deleteCourse", function(req, res){

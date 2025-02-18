@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
-
-mongoose.connect('mongodb+srv://DB1-practice:R5Y71dLhNLahIA3r@cluster0.gpxo7.mongodb.net/course-selling-app')
+const {MONGODB_URL} = require("./config")
+mongoose.connect(MONGODB_URL)
 
 const adminSchema = new Schema({
     username: String,
