@@ -74,22 +74,63 @@ adminRouter.post("/login", async function(req, res){
     }
 });
 
-adminRouter.post("/createCourse", adminAuth, function(req, res){
+adminRouter.post("/createCourse", adminAuth, async function(req, res){
+    const id = req.id;
+    const { title, description, price, imageurl } = req.body;
+
+    const  course = await courseModel.create({
+        title: title,
+        description: description,
+        price: price,
+        imageurl: imageurl,
+        creatorId: id
+    })
+
     res.json({
-        message: "Reached"
+        message: "Course created Successfully",
+        courseId: course._id
     })
 });
 
-adminRouter.post("/deleteCourse", function(req, res){
+adminRouter.post("/deleteCourse", adminAuth, async function(req, res){
+    const creatorId = req.id;
+    const courseId = req.body.courseId;
 
+    const course = await courseModel.findOne({
+        _id: courseId,
+        creatorId
+    })
+    console.log(course)
+    console.log(creatorId)
+    if(course){
+        await courseModel.deleteOne({
+            _id: courseId,
+            creatorId
+        })
+        res.json({
+            message: "Course deleted"
+        })
+    }else{
+        res.json({
+            message: "Course Cannot be deleted"
+        })
+    }
 });
 
-adminRouter.post("/addCourseContent", function(req, res){
+// adminRouter.post("/addCourseContent", function(req, res){
 
-});
+// });
 
-adminRouter.get("/createdCourses", function(req, res){
+adminRouter.get("/createdCourses", adminAuth, async function(req, res){
+    const creatorId = req.id;
 
+    const courses = await courseModel.find({
+        creatorId
+    })
+
+    res.json({
+        courses
+    })
 });
 
 module.exports = {

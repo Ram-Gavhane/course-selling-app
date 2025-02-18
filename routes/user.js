@@ -11,7 +11,7 @@ userRouter.use(express.json());
 
 const {userAuth} = require("../middleware/userAuth")
 
-const { userModel } = require("../db")
+const { userModel, courseModel, purchasesModel } = require("../db")
 
 userRouter.post("/signup", async function(req, res){
     const username = req.body.username;
@@ -76,18 +76,43 @@ userRouter.post("/login", async function(req, res){
     }
 });
 
-userRouter.get("/allCourses", function(req, res){
+userRouter.get("/allCourses", async function(req, res){
+    const courses = await courseModel.find({});
 
-});
-
-userRouter.post("/buyCourse", userAuth, function(req, res){
     res.json({
-        message: "Reached"
+        courses: courses
     })
 });
 
-userRouter.get("/purchasedCourses", function(req, res){
+userRouter.post("/buyCourse", userAuth, async function(req, res){
+    courseId = req.body.courseId;
+    userId = req.id;
 
+    await purchasesModel.create({
+        userId: userId,
+        courseId: courseId
+    })
+
+    res.json({
+        message: "Purchased course successfully"
+    })
+});
+
+userRouter.get("/purchasedCourses", userAuth, async function(req, res){
+    const userId = req.id;
+
+    const purchases = await purchasesModel.find({
+        userId
+    });
+    console.log(purchases)
+    const coursesData = await courseModel.find({
+        _id: { $in: purchases.map(x => x.courseId) }
+    })
+
+    res.json({
+        purchases,
+        coursesData
+    })
 });
 
 module.exports = {
